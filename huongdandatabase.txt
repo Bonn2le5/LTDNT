@@ -1,0 +1,987 @@
+================================================================================
+        HƯỚNG DẪN ĐẦY ĐỦ - TỪ TẢI DATABASE TRÊN GITHUB ĐẾN CHẠY ĐƯỢC
+              HỆ THỐNG ĐẶT SÂN THỂ THAO TỰ ĐỘNG (SPORTBOOKING)
+================================================================================
+2.2. PHẦN MỀM BẮT BUỘC
+--------------------------------------------------------------------------------
+  Phần mềm                 Phiên bản         Bắt buộc
+  -----------------------  ----------------  -----------
+  .NET SDK                 10.0+             CÓ
+  Git                      2.30+             CÓ
+  SQL Server               2019+ / Azure     CÓ
+  SSMS / Azure Data Studio 19+               CÓ (Windows)
+  EF Core Tools (dotnet-ef) 10.x             CÓ
+  Docker Desktop           20+               TÙY CHỌN
+
+2.3. KIỂM TRA MÔI TRƯỜNG
+--------------------------------------------------------------------------------
+Mở Terminal (PowerShell / CMD / Bash) và chạy:
+
+  dotnet --version
+  → Kỳ vọng: 10.x.x
+
+  git --version
+  → Kỳ vọng: git version 2.30+
+
+  docker --version
+  → Kỳ vọng: Docker version 20+ (nếu dùng Docker)
+
+  dotnet ef --version
+  → Kỳ vọng: Entity Framework Core .NET Command-line Tools 10.x
+
+Nếu lệnh nào báo "command not found" → cài đặt ở PHẦN 3.
+
+
+================================================================================
+PHẦN 3 - CÀI ĐẶT CÔNG CỤ BẮT BUỘC
+================================================================================
+
+3.1. CÀI .NET 10 SDK
+--------------------------------------------------------------------------------
+Windows:
+  - Tải tại: https://dotnet.microsoft.com/download/dotnet/10.0
+  - Chọn "Windows x64 Installer"
+  - Chạy file .exe, cài đặt mặc định
+  - Khởi động lại Terminal
+
+macOS:
+  brew install --cask dotnet-sdk
+
+Ubuntu / Debian:
+  wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+  sudo dpkg -i packages-microsoft-prod.deb
+  sudo apt update
+  sudo apt install dotnet-sdk-10.0
+
+Kiểm tra:
+  dotnet --version
+  → 10.x.x
+
+3.2. CÀI GIT
+--------------------------------------------------------------------------------
+Windows:
+  Tải tại: https://git-scm.com/download/win
+  Chạy file .exe, để mặc định
+
+macOS:
+  brew install git
+
+Ubuntu:
+  sudo apt install git
+
+Kiểm tra:
+  git --version
+  → git version 2.xx.x
+
+3.3. CÀI EF CORE TOOLS
+--------------------------------------------------------------------------------
+Mở Terminal, chạy:
+
+  dotnet tool install --global dotnet-ef --version 10.*
+
+Kiểm tra:
+  dotnet ef --version
+  → Entity Framework Core .NET Command-line Tools 10.x
+
+Nếu đã cài bản cũ, cập nhật:
+  dotnet tool update --global dotnet-ef
+
+3.4. CÀI SSMS (Windows) HOẶC AZURE DATA STUDIO
+--------------------------------------------------------------------------------
+SSMS (Windows):
+  Tải tại: https://learn.microsoft.com/sql/ssms/download-sql-server-management-studio-ssms
+  Chạy file .exe, cài đặt mặc định
+
+Azure Data Studio (macOS/Linux):
+  Tải tại: https://learn.microsoft.com/sql/azure-data-studio/download-azure-data-studio
+
+3.5. CÀI DOCKER DESKTOP (nếu dùng SQL Server qua Docker)
+--------------------------------------------------------------------------------
+  Tải tại: https://www.docker.com/products/docker-desktop
+  Cài đặt và khởi động Docker Desktop
+  Kiểm tra: docker --version
+================================================================================
+PHẦN 5 - CÀI ĐẶT CÁC PACKAGE CẦN THIẾT
+================================================================================
+
+5.1. DANH SÁCH PACKAGE TRONG PROJECT
+--------------------------------------------------------------------------------
+File SportBooking.Api.csproj đã khai báo các package sau:
+
+  BCrypt.Net-Next                             4.2.0
+  Microsoft.AspNetCore.Authentication.JwtBearer 10.0.12
+  Microsoft.AspNetCore.OpenApi                10.0.12
+  Microsoft.EntityFrameworkCore.Design        10.0.12
+  Microsoft.EntityFrameworkCore.SqlServer     10.0.12
+  Scalar.AspNetCore                           2.17.13
+
+5.2. RESTORE PACKAGE TỰ ĐỘNG
+--------------------------------------------------------------------------------
+Sau khi clone repo, mở Terminal tại thư mục backend/SportBooking.Api và chạy:
+
+  dotnet restore
+
+Kỳ vọng:
+  Restore succeeded.
+
+5.3. NẾU THIẾU PACKAGE - CÀI THỦ CÔNG
+--------------------------------------------------------------------------------
+Nếu dotnet restore báo lỗi thiếu package, cài từng cái:
+
+  dotnet add package BCrypt.Net-Next --version 4.2.0
+  dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 10.0.12
+  dotnet add package Microsoft.AspNetCore.OpenApi --version 10.0.12
+  dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.0.12
+  dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.0.12
+  dotnet add package Scalar.AspNetCore --version 2.17.13
+
+Sau đó chạy lại:
+  dotnet restore
+
+================================================================================
+PHẦN 6 - CLONE REPOSITORY TỪ GITHUB
+================================================================================
+
+6.1. CHỌN THƯ MỤC LÀM VIỆC
+--------------------------------------------------------------------------------
+Windows (PowerShell):
+  cd D:\Projects
+
+macOS / Linux:
+  cd ~/Projects
+
+6.2. CLONE REPO
+--------------------------------------------------------------------------------
+  git clone https://github.com/Bonn2le5/LTDNT.git
+  cd LTDNT
+
+Lưu ý: Nếu repo private, cần Personal Access Token:
+  git clone https://<username>:<token>@github.com/Bonn2le5/LTDNT.git
+
+6.3. KIỂM TRA CẤU TRÚC SAU KHI CLONE
+--------------------------------------------------------------------------------
+  ls -la
+
+Kỳ vọng:
+  LTDNT/
+  ├── backend/
+  │   └── SportBooking.Api/
+  │       ├── Program.cs
+  │       ├── appsettings.json
+  │       ├── SportBooking.Api.csproj
+  │       ├── Data/
+  │       ├── Models/
+  │       ├── Services/
+  │       └── Migrations/
+  ├── mobile/            (nếu có)
+  ├── docs/
+  └── README.md
+
+6.4. DI CHUYỂN VÀO THƯ MỤC BACKEND
+--------------------------------------------------------------------------------
+  cd backend/SportBooking.Api
+
+6.5. RESTORE VÀ BUILD
+--------------------------------------------------------------------------------
+  dotnet restore
+  dotnet build
+
+Kỳ vọng: Build succeeded, 0 Error.
+
+Nếu repo có chứa file database (.bak hoặc script .sql) thì xem thêm:
+
+  ls docs/
+  → có thể có: database-script.sql, seed-data.sql
+
+
+================================================================================
+PHẦN 7 - CẤU HÌNH CONNECTION STRING
+================================================================================
+
+7.1. MỞ FILE APPSETTINGS.JSON
+--------------------------------------------------------------------------------
+Đường dẫn:
+  backend/SportBooking.Api/appsettings.json
+
+Nội dung hiện tại:
+  {
+    "Logging": {
+      "LogLevel": {
+        "Default": "Information",
+        "Microsoft.AspNetCore": "Warning"
+      }
+    },
+    "AllowedHosts": "*",
+    "ConnectionStrings": {
+      "Default": "Server=localhost,1433;Database=SportBookingDb;User Id=sa;Password=A7!dX9zQ;TrustServerCertificate=True"
+    }
+  }
+
+7.2. SỬA CONNECTION STRING
+--------------------------------------------------------------------------------
+Đổi thành:
+  {
+    "Logging": {
+      "LogLevel": {
+        "Default": "Information",
+        "Microsoft.AspNetCore": "Warning"
+      }
+    },
+    "AllowedHosts": "*",
+    "ConnectionStrings": {
+      "Default": "Server=localhost,1433;Database=DatSanTheThao;User Id=sa;Password=A7!dX9zQ;TrustServerCertificate=True;MultipleActiveResultSets=True"
+    }
+  }
+
+7.3. GIẢI THÍCH CONNECTION STRING
+--------------------------------------------------------------------------------
+  Server=localhost,1433         Host + Port SQL Server
+  Database=DatSanTheThao        Tên database sẽ dùng
+  User Id=sa                    Username SQL Server
+  Password=A7!dX9zQ             Password (KHÔNG commit lên Git)
+  TrustServerCertificate=True   Bỏ qua SSL (chỉ dùng dev)
+  MultipleActiveResultSets=True Cho phép nhiều result set song song
+
+7.4. BẢO MẬT - KHÔNG COMMIT PASSWORD THẬT
+--------------------------------------------------------------------------------
+Cách 1 - User Secrets (khuyến nghị cho dev):
+  cd backend/SportBooking.Api
+  dotnet user-secrets init
+  dotnet user-secrets set "ConnectionStrings:Default" "Server=localhost,1433;Database=DatSanTheThao;User Id=sa;Password=MAT_KHAU_THAT;TrustServerCertificate=True"
+
+Cách 2 - Biến môi trường:
+  Windows PowerShell:
+    $env:ConnectionStrings__Default = "Server=localhost,1433;Database=DatSanTheThao;User Id=sa;Password=MAT_KHAU_THAT;TrustServerCertificate=True"
+
+  Linux / macOS:
+    export ConnectionStrings__Default="Server=localhost,1433;Database=DatSanTheThao;User Id=sa;Password=MAT_KHAU_THAT;TrustServerCertificate=True"
+
+Cách 3 - appsettings.Development.json (đã có trong .gitignore):
+  Tạo file appsettings.Development.json cùng cấp với appsettings.json:
+  {
+    "ConnectionStrings": {
+      "Default": "Server=localhost,1433;Database=DatSanTheThao;User Id=sa;Password=MAT_KHAU_THAT;TrustServerCertificate=True"
+    }
+  }
+
+
+================================================================================
+PHẦN 8 - TẠO DATABASE BẰNG EF CORE MIGRATION (KHUYẾN NGHỊ)
+================================================================================
+
+8.1. KIỂM TRA MIGRATIONS CÓ SẴN TRONG REPO
+--------------------------------------------------------------------------------
+  cd backend/SportBooking.Api
+  dotnet ef migrations list
+
+Kỳ vọng thấy:
+  20261005112222_Init
+
+8.2. ÁP DỤNG MIGRATION ĐỂ TẠO DATABASE
+--------------------------------------------------------------------------------
+  dotnet ef database update
+
+Kỳ vọng output:
+  Build started...
+  Build succeeded.
+  Applying migration '20261005112222_Init'.
+  Done.
+
+8.3. KIỂM TRA DATABASE ĐÃ ĐƯỢC TẠO
+--------------------------------------------------------------------------------
+Dùng SSMS:
+  - Kết nối SQL Server
+  - Mở Databases
+  - Phải thấy DatSanTheThao
+
+Dùng sqlcmd:
+  sqlcmd -S localhost,1433 -U sa -P "A7!dX9zQ" -Q "SELECT name FROM sys.databases"
+
+Kỳ vọng: DatSanTheThao xuất hiện trong danh sách.
+
+8.4. NẾU REPO CÓ NHIỀU MIGRATION
+--------------------------------------------------------------------------------
+  dotnet ef migrations list                   # Xem danh sách
+  dotnet ef database update                   # Áp dụng tất cả
+  dotnet ef database update 20261005112222_Init  # Chỉ áp dụng đến migration cụ thể
+
+8.5. NẾU MUỐN TẠO LẠI DATABASE TỪ ĐẦU
+--------------------------------------------------------------------------------
+  sqlcmd -S localhost,1433 -U sa -P "A7!dX9zQ" ^
+         -Q "ALTER DATABASE DatSanTheThao SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE DatSanTheThao"
+
+  dotnet ef database update
+
+
+================================================================================
+PHẦN 9 - TẠO DATABASE BẰNG SCRIPT SQL THỦ CÔNG
+================================================================================
+
+Dùng khi EF Core Migration gặp lỗi hoặc muốn kiểm soát DDL 100%.
+
+9.1. SINH SCRIPT SQL TỪ MIGRATION
+--------------------------------------------------------------------------------
+  cd backend/SportBooking.Api
+  dotnet ef migrations script --idempotent --output ..\..\docs\database-script.sql
+
+File database-script.sql sẽ chứa toàn bộ DDL.
+
+9.2. CHẠY SCRIPT TRONG SSMS
+--------------------------------------------------------------------------------
+Bước 1: Mở SSMS, kết nối SQL Server.
+Bước 2: File → Open → File → chọn database-script.sql.
+Bước 3: Bấm Execute (F5).
+Bước 4: Đợi script chạy xong (5-10 giây).
+Bước 5: Refresh → thấy database DatSanTheThao với đầy đủ 31 bảng.
+
+9.3. CHẠY SCRIPT BẰNG SQLCMD
+--------------------------------------------------------------------------------
+  sqlcmd -S localhost,1433 -U sa -P "A7!dX9zQ" -i docs/database-script.sql
+
+9.4. DANH SÁCH BẢNG KỲ VỌNG SAU KHI CHẠY
+--------------------------------------------------------------------------------
+  VaiTro, NguoiDung, NguoiDungVaiTro, RefreshToken, ThietBiNguoiDung,
+  ChiNhanh, AnhChiNhanh, LoaiSan, San, AnhSan, TienIch, SanTienIch,
+  QuyTacGia, NgayDacBiet, KhuyenMai, SuDungKhuyenMai,
+  DatSan, DatSanChiTiet, KhoaTam,
+  ThanhToan, GiaoDichThanhToan,
+  Ve, MaChiaSeKhach, LichSuTruyCapKhach,
+  MaQr, LichSuTruyCap,
+  ThietBiIoT, NhatKyIoT,
+  ThongBao, DanhGia, NhatKyHeThong,
+  __EFMigrationsHistory
+
+  Tổng: 31 bảng (30 nghiệp vụ + 1 bảng hệ thống)
+
+
+================================================================================
+PHẦN 10 - SEED DỮ LIỆU MẪU
+================================================================================
+
+10.1. CHẠY SEED TỰ ĐỘNG
+--------------------------------------------------------------------------------
+Nếu Program.cs đã đăng ký seed tự động:
+
+  cd backend/SportBooking.Api
+  dotnet run
+
+Lần đầu chạy sẽ tự seed. Xem log:
+  Info: Đã seed 4 vai trò
+  Info: Đã seed 1 chi nhánh
+  Info: Đã seed 6 sân
+
+10.2. CHẠY SEED THỦ CÔNG BẰNG SQL
+--------------------------------------------------------------------------------
+Chạy script seed trong SSMS:
+
+  USE DatSanTheThao;
+  GO
+
+  -- Vai trò
+  INSERT INTO dbo.VaiTro (MaVaiTro, TenVaiTro, MoTa) VALUES
+   (N'ADMIN', N'Quản trị viên', N'Toàn quyền hệ thống'),
+   (N'OWNER', N'Chủ sân',       N'Quản lý chi nhánh/sân'),
+   (N'STAFF', N'Nhân viên',     N'Check-in/check-out'),
+   (N'USER',  N'Người dùng',    N'Khách đặt sân');
+  GO
+
+  -- Chi nhánh
+  INSERT INTO dbo.ChiNhanh
+    (MaChiNhanh, TenChiNhanh, DiaChi, ViDo, KinhDo, GioMoCua, GioDongCua)
+  VALUES
+    (N'TTMOC', N'Trung tâm thể thao Mộc',
+     N'123 Nguyễn Văn Cừ, Quận 5, TP.HCM',
+     10.7626220, 106.6601720, '06:00', '23:00');
+  GO
+
+  -- Loại sân
+  INSERT INTO dbo.LoaiSan
+    (MaLoaiSan, TenLoaiSan, SoNguoiToiDa, PhutMoiSlot,
+     ThoiLuongToiThieuPhut, ThoiLuongToiDaPhut)
+  VALUES
+    (N'BONG_DA',  N'Sân bóng đá',  14, 30, 60, 180),
+    (N'CAU_LONG', N'Sân cầu lông',  4, 30, 60, 120);
+  GO
+
+  -- Tiện ích
+  INSERT INTO dbo.TienIch (MaTienIch, TenTienIch) VALUES
+    (N'WIFI',            N'Wi-Fi miễn phí'),
+    (N'GUI_XE',          N'Bãi giữ xe'),
+    (N'DEN_CHIEU_SANG',  N'Đèn chiếu sáng'),
+    (N'PHONG_THAY_DO',   N'Phòng thay đồ'),
+    (N'NUOC_UONG',       N'Nước uống');
+  GO
+
+10.3. XÁC NHẬN SEED THÀNH CÔNG
+--------------------------------------------------------------------------------
+  SELECT (SELECT COUNT(*) FROM dbo.VaiTro)     AS VaiTro,
+         (SELECT COUNT(*) FROM dbo.ChiNhanh)   AS ChiNhanh,
+         (SELECT COUNT(*) FROM dbo.LoaiSan)    AS LoaiSan,
+         (SELECT COUNT(*) FROM dbo.TienIch)    AS TienIch;
+  GO
+
+Kỳ vọng: VaiTro=4, ChiNhanh=1, LoaiSan=2, TienIch=5.
+
+
+================================================================================
+PHẦN 11 - CHẠY BACKEND API
+================================================================================
+
+11.1. CHẠY Ở MÔI TRƯỜNG DEVELOPMENT
+--------------------------------------------------------------------------------
+  cd backend/SportBooking.Api
+  dotnet run
+
+Kỳ vọng output:
+  info: Microsoft.Hosting.Lifetime[14]
+        Now listening on: http://localhost:5190
+  info: Microsoft.Hosting.Lifetime[14]
+        Now listening on: https://localhost:7174
+  info: Microsoft.Hosting.Lifetime[0]
+        Application started. Press Ctrl+C to shut down.
+
+11.2. MỞ GIAO DIỆN SCALAR API REFERENCE
+--------------------------------------------------------------------------------
+Mở browser:
+  https://localhost:7174/scalar/v1
+
+Hoặc:
+  http://localhost:5190/scalar/v1
+
+11.3. KIỂM TRA KẾT NỐI DATABASE
+--------------------------------------------------------------------------------
+Endpoint test:
+  GET https://localhost:7174/health/db
+
+Kỳ vọng response:
+  {
+    "status": "OK",
+    "database": "DatSanTheThao"
+  }
+
+11.4. CHẠY VỚI HTTPS DEV CERTIFICATE
+--------------------------------------------------------------------------------
+Lần đầu chạy, .NET sẽ hỏi cài dev certificate:
+
+  dotnet dev-certs https --trust
+
+Chọn "Yes" khi Windows hỏi.
+
+11.5. DỪNG API
+--------------------------------------------------------------------------------
+Nhấn Ctrl + C trong Terminal.
+
+
+================================================================================
+PHẦN 12 - KIỂM TRA & VERIFY DATABASE
+================================================================================
+
+12.1. KIỂM TRA TRONG SSMS
+--------------------------------------------------------------------------------
+Query 1 - Đếm bảng:
+  USE DatSanTheThao;
+  GO
+  SELECT COUNT(*) AS SoBang FROM sys.tables;
+  -- Kỳ vọng: >= 31
+
+Query 2 - Liệt kê bảng:
+  SELECT name FROM sys.tables ORDER BY name;
+
+Query 3 - Kiểm tra UNIQUE INDEX chống Double Booking:
+  SELECT i.name, t.name AS Bang, i.is_unique, i.filter_definition
+  FROM sys.indexes i
+  JOIN sys.tables t ON t.object_id = i.object_id
+  WHERE i.name IN (
+      'UX_DSCT_San_Slot_DangChiem',
+      'UX_KhoaTam_San_Slot_Active',
+      'UX_GDT_Cong_MaGiaoDich',
+      'UX_Ve_DatSan_Owner',
+      'UX_MaQr_Nonce'
+  );
+  GO
+  -- Kỳ vọng: 5 dòng, is_unique = 1
+
+Query 4 - Kiểm tra Foreign Key:
+  SELECT fk.name, tp.name AS BangCha, tr.name AS BangCon
+  FROM sys.foreign_keys fk
+  JOIN sys.tables tp ON tp.object_id = fk.parent_object_id
+  JOIN sys.tables tr ON tr.object_id = fk.referenced_object_id
+  ORDER BY tp.name;
+  GO
+
+12.2. TEST API BẰNG CURL
+--------------------------------------------------------------------------------
+  curl https://localhost:7174/health/db -k
+
+Kỳ vọng:
+  {"status":"OK","database":"DatSanTheThao"}
+
+12.3. TEST TRONG SCALAR UI
+--------------------------------------------------------------------------------
+Bước 1: Mở https://localhost:7174/scalar/v1
+Bước 2: Chọn endpoint GET /health/db
+Bước 3: Bấm Send
+Bước 4: Xem response 200 OK
+
+
+================================================================================
+PHẦN 13 - TEST CONCURRENCY CHỐNG DOUBLE BOOKING
+================================================================================
+
+Đây là BÀI TEST QUAN TRỌNG NHẤT - xác nhận hệ thống không bị double booking.
+
+13.1. TEST Ở TẦNG DATABASE (SSMS)
+--------------------------------------------------------------------------------
+Mở 2 query window riêng biệt trong SSMS.
+
+Window 1 - chạy:
+  USE DatSanTheThao;
+  GO
+  BEGIN TRAN;
+
+  INSERT INTO dbo.DatSanChiTiet
+      (DatSanId, SanId, ChiNhanhId, NgaySuDung,
+       ThoiGianBatDauUtc, ThoiGianKetThucUtc, ThuTuSlot, GiaSlot, TrangThai)
+  VALUES
+      (NEWID(), 1, 1, '2026-01-15',
+       '2026-01-15T11:00:00Z', '2026-01-15T11:30:00Z', 1, 50000, 'BOOKED');
+
+  -- GIỮ TRANSACTION MỞ (chưa COMMIT)
+
+Window 2 - chạy:
+  USE DatSanTheThao;
+  GO
+  BEGIN TRAN;
+
+  INSERT INTO dbo.DatSanChiTiet
+      (DatSanId, SanId, ChiNhanhId, NgaySuDung,
+       ThoiGianBatDauUtc, ThoiGianKetThucUtc, ThuTuSlot, GiaSlot, TrangThai)
+  VALUES
+      (NEWID(), 1, 1, '2026-01-15',
+       '2026-01-15T11:00:00Z', '2026-01-15T11:30:00Z', 1, 50000, 'BOOKED');
+
+Kết quả kỳ vọng ở Window 2:
+  Msg 2601, Level 14, State 1, Line X
+  Cannot insert duplicate key row in object 'dbo.DatSanChiTiet' with
+  unique index 'UX_DSCT_San_Slot_DangChiem'.
+  The duplicate key value is (1, 2026-01-15 11:00:00.000).
+  The statement has been terminated.
+
+=> Đây chính là bằng chứng hệ thống chống Double Booking ở tầng DB.
+
+Dọn dẹp:
+  Ở Window 1: ROLLBACK TRANSACTION;
+
+13.2. TEST 100 REQUEST ĐỒNG THỜI BẰNG POWERSHELL
+--------------------------------------------------------------------------------
+Tạo file test-concurrency.ps1:
+
+  $ErrorActionPreference = "Continue"
+  $baseUrl = "https://localhost:7174"
+  $token = "YOUR_JWT_TOKEN_HERE"
+
+  $body = @{
+      sanId = 1
+      thoiGianBatDau = "2026-01-15T11:00:00Z"
+      thoiGianKetThuc = "2026-01-15T11:30:00Z"
+  } | ConvertTo-Json
+
+  $headers = @{
+      "Authorization" = "Bearer $token"
+      "Content-Type"  = "application/json"
+  }
+
+  $jobs = 1..100 | ForEach-Object {
+      Start-Job -ScriptBlock {
+          param($url, $body, $headers)
+          try {
+              Invoke-RestMethod -Uri "$url/api/dat-san/khoa-tam" `
+                  -Method Post -Body $body -Headers $headers -SkipCertificateCheck
+              return "SUCCESS"
+          } catch {
+              return "FAILURE"
+          }
+      } -ArgumentList $baseUrl, $body, $headers
+  }
+
+  $results = $jobs | Wait-Job | Receive-Job
+  $jobs | Remove-Job
+
+  $successCount = ($results | Where-Object { $_ -eq "SUCCESS" }).Count
+  $failureCount = ($results | Where-Object { $_ -eq "FAILURE" }).Count
+
+  Write-Host "SUCCESS: $successCount" -ForegroundColor Green
+  Write-Host "FAILURE: $failureCount" -ForegroundColor Red
+
+  if ($successCount -eq 1) {
+      Write-Host "PASS - Chỉ 1 request thành công" -ForegroundColor Green
+  } else {
+      Write-Host "FAIL - Có $successCount request thành công (kỳ vọng = 1)" -ForegroundColor Red
+  }
+
+Chạy: .\test-concurrency.ps1
+
+Kết quả kỳ vọng:
+  SUCCESS: 1
+  FAILURE: 99
+  PASS - Chỉ 1 request thành công
+
+13.3. TEST GUEST QUOTA 10 LƯỢT
+--------------------------------------------------------------------------------
+Setup: Tạo 1 vé GUEST với SoLuotKhachDaDung = 9, SoLuotKhachToiDa = 10.
+
+Chạy 10 request đồng thời gọi /api/access/validate.
+
+Kết quả kỳ vọng:
+  - 1 request: ACCESS_GRANTED (9 -> 10)
+  - 9 request: ACCESS_DENIED với GUEST_QUOTA_EXCEEDED
+
+Query kiểm tra:
+  SELECT VeId, SoLuotKhachDaDung, SoLuotKhachToiDa
+  FROM dbo.Ve
+  WHERE LoaiVe = 'GUEST';
+  -- Kỳ vọng: SoLuotKhachDaDung = 10, KHÔNG vượt 10
+
+13.4. TEST IDEMPOTENCY PAYMENT
+--------------------------------------------------------------------------------
+Gửi cùng một callback thanh toán 5 lần:
+
+  for i in {1..5}; do
+      curl -X POST "https://localhost:7174/api/thanh-toan/vnpay/callback" \
+          -d "vnp_TxnRef=ORDER123&vnp_TransactionNo=12345&vnp_Amount=225000" -k
+  done
+
+Kết quả kỳ vọng:
+  - Lần 1: 200 OK - xử lý thành công
+  - Lần 2-5: 200 OK với code: "PAYMENT_ALREADY_PROCESSED"
+
+Query kiểm tra:
+  SELECT COUNT(*) FROM dbo.Ve WHERE DatSanId = '<datSanId>';
+  -- Kỳ vọng: 1 vé duy nhất
+
+  SELECT COUNT(*) FROM dbo.ThanhToan WHERE DatSanId = '<datSanId>';
+  -- Kỳ vọng: 1 thanh toán duy nhất
+
+
+================================================================================
+PHẦN 14 - TROUBLESHOOTING
+================================================================================
+
+14.1. LỖI DOTNET BUILD THẤT BẠI
+--------------------------------------------------------------------------------
+Triệu chứng:
+  error NU1101: Unable to find package Microsoft.EntityFrameworkCore.SqlServer
+
+Nguyên nhân: Chưa restore package hoặc thiếu source NuGet.
+
+Khắc phục:
+  dotnet nuget list source
+  dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+  dotnet restore --force
+  dotnet build
+
+14.2. LỖI DOTNET EF KHÔNG TÌM THẤY
+--------------------------------------------------------------------------------
+Triệu chứng:
+  Could not execute because the specified command or file was not found.
+
+Khắc phục:
+  dotnet tool install --global dotnet-ef --version 10.*
+  Đóng và mở lại Terminal
+  dotnet ef --version
+
+14.3. LỖI KẾT NỐI SQL SERVER
+--------------------------------------------------------------------------------
+Triệu chứng:
+  Microsoft.Data.SqlClient.SqlException: A network-related or instance-specific
+  error occurred while establishing a connection to SQL Server.
+
+Khắc phục:
+Bước 1 - Kiểm tra SQL Server đang chạy:
+  Windows: Get-Service MSSQLSERVER
+  Docker : docker ps | grep sqlserver
+
+Bước 2 - Kiểm tra port 1433:
+  Windows: Test-NetConnection localhost -Port 1433
+  Linux  : nc -zv localhost 1433
+
+Bước 3 - Bật TCP/IP (SQL Server local):
+  - SQL Server Configuration Manager
+  - SQL Server Network Configuration
+  - Protocols for MSSQLSERVER
+  - Chuột phải TCP/IP - Enable
+  - Restart SQL Server service
+
+Bước 4 - Kiểm tra firewall (mở port 1433).
+
+14.4. LỖI LOGIN FAILED FOR USER 'SA'
+--------------------------------------------------------------------------------
+Nguyên nhân: SA bị disabled hoặc sai password.
+
+Khắc phục:
+Bật SA login (chạy trong SSMS với Windows Authentication):
+  ALTER LOGIN sa ENABLE;
+  GO
+  ALTER LOGIN sa WITH PASSWORD = N'A7!dX9zQ';
+  GO
+
+Đảm bảo SQL Server ở Mixed Mode:
+  - Chuột phải SQL Server - Properties
+  - Security - chọn SQL Server and Windows Authentication mode
+  - Restart SQL Server service
+
+14.5. LỖI CANNOT OPEN DATABASE "DATSANTHETHAO"
+--------------------------------------------------------------------------------
+Nguyên nhân: Database chưa được tạo.
+
+Khắc phục:
+  cd backend/SportBooking.Api
+  dotnet ef database update
+
+Hoặc tạo database thủ công:
+  CREATE DATABASE DatSanTheThao;
+  GO
+Sau đó chạy lại dotnet ef database update.
+
+14.6. LỖI CANNOT INSERT DUPLICATE KEY KHI CHẠY MIGRATION
+--------------------------------------------------------------------------------
+Nguyên nhân: Database đã có bảng cũ hoặc migration chạy 2 lần.
+
+Khắc phục:
+  sqlcmd -S localhost,1433 -U sa -P "A7!dX9zQ" -d DatSanTheThao ^
+         -Q "SELECT * FROM __EFMigrationsHistory"
+
+  sqlcmd -S localhost,1433 -U sa -P "A7!dX9zQ" ^
+         -Q "ALTER DATABASE DatSanTheThao SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE DatSanTheThao"
+
+  dotnet ef database update
+
+14.7. LỖI CERTIFICATE CHAIN NOT TRUSTED
+--------------------------------------------------------------------------------
+Khắc phục:
+Option 1: Thêm TrustServerCertificate=True vào connection string.
+Option 2: dotnet dev-certs https --trust
+
+14.8. LỖI PORT 1433 ALREADY IN USE
+--------------------------------------------------------------------------------
+Khắc phục:
+Kiểm tra process chiếm port:
+  Windows: netstat -ano | findstr :1433
+  Linux  : lsof -i :1433
+
+Đổi port mapping (Docker):
+  docker run -d ^
+    --name sqlserver-sportbooking ^
+    -e "ACCEPT_EULA=Y" ^
+    -e "MSSQL_SA_PASSWORD=A7!dX9zQ" ^
+    -p 1434:1433 ^
+    mcr.microsoft.com/mssql/server:2022-latest
+
+Sửa connection string: Server=localhost,1434;...
+
+14.9. LỖI SYSTEM.GLOBALIZATION.CULTURENOTFOUNDEXCEPTION
+--------------------------------------------------------------------------------
+Khắc phục: Thêm vào đầu file Program.cs:
+  using System.Globalization;
+  CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+  CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
+
+14.10. LỖI EF TOOLS CŨ HƠN RUNTIME
+--------------------------------------------------------------------------------
+Khắc phục:
+  dotnet tool update --global dotnet-ef
+
+14.11. LỖI DOCKER DAEMON NOT RUNNING
+--------------------------------------------------------------------------------
+Khắc phục:
+  - Mở Docker Desktop
+  - Đợi icon Docker chuyển sang xanh (running)
+  - Chạy lại lệnh docker
+
+14.12. LỖI CANNOT ACCESS A DISPOSED CONTEXT INSTANCE
+--------------------------------------------------------------------------------
+Nguyên nhân: DbContext bị dispose trong khi có async operation.
+
+Khắc phục: Kiểm tra code - đảm bảo không dùng using var db = new AppDbContext()
+với async, mà inject qua DI.
+
+14.13. LỖI KHI CHẠY DOCKER TRÊN WINDOWS
+--------------------------------------------------------------------------------
+Triệu chứng:
+  error during connect: This error may indicate that the docker daemon is not running.
+
+Khắc phục:
+  - Mở Docker Desktop
+  - Đợi Docker running
+  - Chạy lại lệnh docker
+
+
+================================================================================
+PHẦN 15 - FAQ (CÂU HỎI THƯỜNG GẶP)
+================================================================================
+
+Q1: Tôi dùng macOS, có chạy được SQL Server local không?
+A: SQL Server không chạy native trên macOS. Phải dùng Docker (Cách B)
+   hoặc Azure SQL (Cách C).
+
+Q2: Repo có bao gồm database sẵn không?
+A: Không. Database được tạo từ EF Core Migration hoặc script SQL.
+   Không commit file .mdf / .bak lên Git vì lý do bảo mật và dung lượng.
+
+Q3: Password sa bị lộ trong appsettings.json có sao không?
+A: Đây là password mẫu cho môi trường dev. BẮT BUỘC đổi khi deploy production
+   và KHÔNG commit password thật lên Git. Dùng User Secrets hoặc Environment
+   Variables.
+
+Q4: Tôi muốn reset database về trạng thái ban đầu?
+A: sqlcmd -S localhost,1433 -U sa -P "A7!dX9zQ" ^
+          -Q "ALTER DATABASE DatSanTheThao SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE DatSanTheThao"
+   cd backend/SportBooking.Api
+   dotnet ef database update
+
+Q5: Làm sao chạy trên CI/CD (GitHub Actions)?
+A: Thêm vào .github/workflows/ci.yml:
+   - name: Start SQL Server
+     run: |
+       docker run -d --name sqlserver \
+         -e "ACCEPT_EULA=Y" \
+         -e "MSSQL_SA_PASSWORD=A7!dX9zQ" \
+         -p 1433:1433 \
+         mcr.microsoft.com/mssql/server:2022-latest
+
+   - name: Run migrations
+     run: dotnet ef database update
+     working-directory: backend/SportBooking.Api
+
+Q6: Làm sao backup database?
+A: BACKUP DATABASE DatSanTheThao
+   TO DISK = 'C:\Backups\DatSanTheThao.bak'
+   WITH FORMAT, INIT, COMPRESSION, STATS = 10;
+
+Q7: Database chiếm bao nhiêu dung lượng?
+A: Database rỗng ~50 MB. Sau khi seed + vài nghìn booking ~200 MB.
+
+Q8: Có cần Redis không?
+A: Không bắt buộc cho dev. Production nên thêm Redis để cache availability
+   và rate limiting.
+
+Q9: Làm sao thêm migration mới khi thay đổi entity?
+A: cd backend/SportBooking.Api
+   dotnet ef migrations add TenMigrationMoi
+   dotnet ef database update
+
+Q10: Làm sao rollback migration?
+A: dotnet ef database update TenMigrationTruoc   # Rollback về migration cụ thể
+   dotnet ef database update 0                    # Rollback toàn bộ
+
+Q11: Tôi không có SQL Server, có thể dùng gì khác?
+A: Có thể dùng:
+   - SQL Server Express (miễn phí, giới hạn 10GB)
+   - SQL Server Developer Edition (miễn phí cho dev)
+   - Azure SQL Database (đám mây, có free tier)
+   - Docker SQL Server (khuyến nghị)
+
+Q12: Làm sao biết database đã sẵn sàng cho đồ án?
+A: Chạy PHẦN 16 - CHECKLIST, tất cả mục phải được tick.
+
+
+================================================================================
+PHẦN 16 - CHECKLIST HOÀN THÀNH
+================================================================================
+
+Đánh dấu [x] khi mỗi mục hoàn tất:
+
+16.1. MÔI TRƯỜNG
+--------------------------------------------------------------------------------
+[ ] .NET 10 SDK đã cài (dotnet --version → 10.x)
+[ ] Git đã cài (git --version)
+[ ] Docker Desktop đã cài (nếu dùng Docker)
+[ ] dotnet-ef đã cài (dotnet ef --version → 10.x)
+[ ] SSMS hoặc Azure Data Studio đã cài
+
+16.2. SOURCE CODE
+--------------------------------------------------------------------------------
+[ ] Clone repo thành công từ GitHub
+[ ] Có thư mục backend/SportBooking.Api
+[ ] dotnet restore thành công
+[ ] dotnet build thành công, 0 Error
+[ ] Đã cài đủ 6 package (BCrypt, JwtBearer, OpenApi, EF Design,
+    EF SqlServer, Scalar)
+
+16.3. DATABASE
+--------------------------------------------------------------------------------
+[ ] SQL Server đang chạy (local hoặc Docker)
+[ ] Kết nối được bằng sqlcmd hoặc SSMS
+[ ] Connection string đã cấu hình đúng
+[ ] dotnet ef database update chạy thành công
+[ ] Database DatSanTheThao đã tồn tại
+[ ] Có đầy đủ ≥ 31 bảng
+[ ] Có 5 UNIQUE INDEX chống Double Booking
+[ ] Seed data đã chạy (VaiTro, ChiNhanh, LoaiSan, TienIch)
+
+16.4. BACKEND API
+--------------------------------------------------------------------------------
+[ ] dotnet run chạy không lỗi
+[ ] API lắng nghe ở https://localhost:7174
+[ ] Scalar UI mở được tại /scalar/v1
+[ ] Endpoint /health/db trả về {"status":"OK"}
+
+16.5. TEST CONCURRENCY
+--------------------------------------------------------------------------------
+[ ] Test double booking trong SSMS - Window 2 nhận lỗi 2601
+[ ] Test 100 concurrent requests - chỉ 1 thành công
+[ ] Test Guest Quota - không vượt quá 10
+[ ] Test Payment Idempotency - không tạo trùng vé
+
+16.6. HOÀN TẤT
+--------------------------------------------------------------------------------
+[ ] Có thể tắt máy, mở lại, chạy dotnet run và API hoạt động
+[ ] Database không mất dữ liệu sau restart
+[ ] Có thể chia sẻ connection string (đã ẩn password) cho team
+
+
+================================================================================
+PHẦN 17 - TÓM TẮT NHANH (TL;DR)
+================================================================================
+
+5 LỆNH DUY NHẤT ĐỂ CHẠY DATABASE:
+
+  1. Clone:
+     git clone https://github.com/Bonn2le5/LTDNT.git
+     cd LTDNT/backend/SportBooking.Api
+
+  2. Khởi động SQL Server (Docker):
+     docker run -d --name sqlserver ^
+       -e "ACCEPT_EULA=Y" ^
+       -e "MSSQL_SA_PASSWORD=A7!dX9zQ" ^
+       -p 1433:1433 ^
+       mcr.microsoft.com/mssql/server:2022-latest
+
+  3. Restore + Build:
+     dotnet restore
+     dotnet build
+
+  4. Tạo database:
+     dotnet ef database update
+
+  5. Chạy API:
+     dotnet run
+
+Mở browser: https://localhost:7174/scalar/v1
+Thấy giao diện API là thành công.
+
+================================================================================
+                              HẾT TÀI LIỆU
+================================================================================
+
+Nếu gặp vấn đề ngoài các mục Troubleshooting trên, vui lòng tạo Issue trên
+GitHub kèm:
+  1. Hệ điều hành + phiên bản
+  2. Output đầy đủ của lệnh bị lỗi
+  3. Nội dung dotnet --info
+
+Liên hệ:
+  GitHub Issues: https://github.com/Bonn2le5/LTDNT/issues
+  Tài liệu API:  https://localhost:7174/scalar/v1
+
+================================================================================
